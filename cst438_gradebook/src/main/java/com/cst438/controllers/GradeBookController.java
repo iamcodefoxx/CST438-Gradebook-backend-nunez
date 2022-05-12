@@ -1,5 +1,7 @@
 package com.cst438.controllers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +28,7 @@ import com.cst438.domain.CourseDTOG;
 import com.cst438.domain.CourseRepository;
 import com.cst438.domain.Enrollment;
 import com.cst438.domain.GradebookDTO;
+import com.cst438.domain.AssignmentListDTO.AssignmentDTO;
 import com.cst438.services.RegistrationService;
 
 @RestController
@@ -168,6 +172,86 @@ public class GradeBookController {
 		}
 		
 		return assignment;
+	}
+
+	// ADD AN ASSIGNMENT TO COURSE
+
+	@PutMapping("/assignment/add")
+	@Transactional
+	public void addAssignment(@RequestBody AssignmentDTO assignment) throws ParseException {
+
+		String email = "dwisneski@csumb.edu"; // user name (should be instructor's email)
+
+		Course c = courseRepository.findById(assignment.courseId).orElse(null);
+		if (!c.getInstructor().equals(email)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized. ");
+		}
+
+		String date_string = assignment.dueDate;
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+		long time_millis = formatter.parse(date_string).getTime();
+		java.sql.Date date = new java.sql.Date(time_millis);
+
+		System.out.println(date);
+
+		Assignment a = new Assignment();
+		a.setName(assignment.assignmentName);
+		a.setDueDate(date);
+		a.setCourse(c);
+
+		assignmentRepository.save(a);
+
+	}
+
+	// UPDATE AN ASSIGNMENT NAME
+
+	@PutMapping("/assignment/{assignmentId}")
+	@Transactional
+	public void updateAssignment(@RequestBody String name, @PathVariable("assignmentId") Integer assignmentId) {
+
+		String email = "dwisneski@csumb.edu"; // user name (should be instructor's email)
+		checkAssignment(assignmentId, email); // check that user name matches instructor email of the course.
+
+		Assignment a = assignmentRepository.findById(assignmentId).orElse(null);
+		if (a == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid assignment id. " + assignmentId);
+		}
+		a.setName(name);
+
+		assignmentRepository.save(a);
+
+	}
+
+	// DELETE AN ASSIGNMENT
+
+	@DeleteMapping("/assignment/delete/{assignmentId}")
+	@Transactional
+	public void deleteAssignment(@PathVariable("assignmentId") int assignmentId) {
+
+		Assignment a = assignmentRepository.findById(assignmentId).orElse(null);
+		if (a == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Assignment not found. " + assignmentId);
+		}
+
+		String email = "dwisneski@csumb.edu"; // user name (should be instructor's email)
+		Assignment assignment = checkAssignment(assignmentId, email);
+
+		GradebookDTO gradebook = new GradebookDTO();
+		gradebook.assignmentId = assignmentId;
+		gradebook.assignmentName = assignment.getName();
+
+		for (Enrollment e : assignment.getCourse().getEnrollments()) {
+			GradebookDTO.Grade grade = new GradebookDTO.Grade();
+			grade.name = e.getStudentName();
+			grade.email = e.getStudentEmail();
+			// does student have a grade for this assignment
+			AssignmentGrade ag = assignmentGradeRepository.findByAssignmentIdAndStudentEmail(assignmentId, grade.email);
+			System.out.println(ag);
+			if (ag != null)
+				assignmentGradeRepository.delete(ag);
+		}
+
+		assignmentRepository.delete(assignment);
 	}
 
 }

@@ -192,8 +192,6 @@ public class GradeBookController {
 		long time_millis = formatter.parse(date_string).getTime();
 		java.sql.Date date = new java.sql.Date(time_millis);
 
-		System.out.println(date);
-
 		Assignment a = new Assignment();
 		a.setName(assignment.assignmentName);
 		a.setDueDate(date);

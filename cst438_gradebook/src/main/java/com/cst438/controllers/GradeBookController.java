@@ -32,7 +32,7 @@ import com.cst438.domain.AssignmentListDTO.AssignmentDTO;
 import com.cst438.services.RegistrationService;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000","http://localhost:3001"})
+@CrossOrigin(origins = {"http://localhost:3000","https://minu-gradebook-frontend.herokuapp.com/"})
 public class GradeBookController {
 	
 	@Autowired

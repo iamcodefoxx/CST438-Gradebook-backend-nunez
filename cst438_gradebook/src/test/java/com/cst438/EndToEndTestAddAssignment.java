@@ -39,7 +39,7 @@ import com.cst438.domain.EnrollmentRepository;
 @SpringBootTest
 public class EndToEndTestAddAssignment {
 
-  public static final String CHROME_DRIVER_FILE_LOCATION = "C:/Users/Ashley/Downloads/chromedriver_win32/chromedriver.exe";
+  public static final String CHROME_DRIVER_FILE_LOCATION = "C:/chromedriver.exe";
   public static final String URL = "https://minu-gradebook-frontend.herokuapp.com/";
   public static final String TEST_USER_EMAIL = "test@csumb.edu";
   public static final String TEST_INSTRUCTOR_EMAIL = "dwisneski@csumb.edu";
@@ -47,7 +47,7 @@ public class EndToEndTestAddAssignment {
 
   public static final String TEST_ASSIGNMENT_NAME = "Test Assignment";
   public static final int TEST_COURSE_ID = 123456;
-  public static final String TEST_DUE_DATE = "2022-10-25";
+  public static final String TEST_DUE_DATE = "20221025";
   public static final String TEST_STUDENT_NAME = "Test";
   public static final String TEST_COURSE_TITLE = "Test Course";
 

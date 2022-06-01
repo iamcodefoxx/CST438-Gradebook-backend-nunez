@@ -32,13 +32,10 @@ public class EnrollmentController {
 	public EnrollmentDTO addEnrollment(@RequestBody EnrollmentDTO enrollmentDTO) {
 
 		Course course = courseRepository.findById(enrollmentDTO.course_id).orElse(null);
-		
 		Enrollment enrollment = new Enrollment();
-		
 		enrollment.setCourse(course);
 		enrollment.setStudentName(enrollmentDTO.studentName);
 		enrollment.setStudentEmail(enrollmentDTO.studentEmail);
-		
 		enrollmentRepository.save(enrollment);
 		enrollment = enrollmentRepository.save(enrollment);
 		enrollmentDTO.id = enrollment.getId();
